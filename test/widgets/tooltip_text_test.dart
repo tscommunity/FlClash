@@ -1,5 +1,7 @@
 import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,6 +39,25 @@ void main() {
     await pumpText(tester, 2000);
     expect(find.byType(Tooltip), findsNothing);
   });
+
+  testWidgets(
+    'a Windows tooltip keeps its grafted semantics inside a boundary',
+    (tester) async {
+      final previous = debugDefaultTargetPlatformOverride;
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      addTearDown(() => debugDefaultTargetPlatformOverride = previous);
+      await pumpText(tester, 80);
+      expect(
+        find.descendant(
+          of: find.byType(Tooltip),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Semantics && widget.container,
+          ),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets('a hover tooltip waits for a pointer', (tester) async {
     final handle = tester.ensureSemantics();

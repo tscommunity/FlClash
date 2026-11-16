@@ -45,6 +45,22 @@ Hotfix releases (3.47.x) carry only cherry-picks listed in the SDK's `CHANGELOG.
 - **Remove when:** a stable `FLUTTER_VERSION` fixes #193504. Before dropping the call, build with Impeller on that SDK
   and drag every window edge for a minute on a machine that reproduced the freeze; the window has to keep redrawing.
 
+## Tooltip semantics graft on Windows
+
+- **Bug:** [flutter/flutter#182444](https://github.com/flutter/flutter/issues/182444). `RawTooltip` grafts its overlay
+  node onto the tooltip's anchor with traversal identifiers; when that anchor sits in a scrolling surface, the
+  detached overlay can be filtered before its parent is told, so Windows logs
+  `Failed to update ui::AXTree, error: N will not be in the tree and is not the new root`. A later update can leave an
+  orphan node in the tree. The issue was still open in 3.50.0, the SDK pinned here.
+- **Workaround:** on Windows, `prism_ui/lib/tooltip.dart` wraps `RawTooltip` in `Semantics(container: true, ...)`, so
+  the grafted identifiers stop at a boundary instead of merging with the surrounding surface. This is the boundary the
+  upstream reports use to keep the two identifiers apart; it preserves the tooltip's own semantics. Other platforms
+  keep the unwrapped tooltip so their semantics tree does not gain a boundary node.
+- **Side effect:** one additional, unlabelled semantics node per tooltip on Windows.
+- **Remove when:** `FLUTTER_VERSION` moves to a stable that contains the upstream fix. Before dropping the wrapper,
+  run the Windows app with Narrator enabled and hover between adjacent tooltips in a scrolling list; no AXTree error
+  may appear.
+
 ## Wrong-size back buffer on macOS
 
 - **Bug:** [flutter/flutter#185394](https://github.com/flutter/flutter/issues/185394). `removeSurfaceForSize:` in

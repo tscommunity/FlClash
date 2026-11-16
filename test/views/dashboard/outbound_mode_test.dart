@@ -88,7 +88,7 @@ void main() {
     }
   });
 
-  testWidgets('tapping a mode selects it and turns it into the pill', (
+  testWidgets('tapping a mode selects it and keeps its square corner', (
     tester,
   ) async {
     await pump(tester, const OutboundModeCard());
@@ -96,7 +96,7 @@ void main() {
       tester.element(find.byType(OutboundModeCard)),
     ).colorScheme;
     expect(decorationOf(tester, Mode.rule).color, colorScheme.primary);
-    final innerRadius = startRadiusOf(tester, Mode.direct);
+    expect(startRadiusOf(tester, Mode.direct), 0);
 
     await tester.tap(buttonOf(Mode.direct));
     await tester.pumpAndSettle();
@@ -104,7 +104,7 @@ void main() {
     expect(container.read(patchClashConfigProvider).mode, Mode.direct);
     expect(decorationOf(tester, Mode.direct).color, colorScheme.primary);
     expect(decorationOf(tester, Mode.rule).color, isNot(colorScheme.primary));
-    expect(startRadiusOf(tester, Mode.direct), greaterThan(innerRadius));
+    expect(startRadiusOf(tester, Mode.direct), 0);
   });
 
   testWidgets('the modes keep their fills with glass on', (tester) async {
@@ -124,9 +124,6 @@ void main() {
     tester,
   ) async {
     await pump(tester, const OutboundModeCard());
-    final colorScheme = Theme.of(
-      tester.element(find.byType(OutboundModeCard)),
-    ).colorScheme;
     double swellOf(Mode mode) {
       final box = tester.renderObject<RenderBox>(buttonOf(mode));
       return ElasticPress.paintBoundsOf(box).width / box.size.width;
@@ -141,19 +138,7 @@ void main() {
     expect(swellOf(Mode.rule), greaterThan(1));
     expect(swellOf(Mode.global), moreOrLessEquals(1));
     expect(swellOf(Mode.direct), moreOrLessEquals(1));
-    final row = find
-        .ancestor(
-          of: buttonOf(Mode.rule),
-          matching: find.byWidgetPredicate((widget) => widget is Flex),
-        )
-        .first;
-    expect(
-      tester.renderObject(row),
-      paints
-        ..rsuperellipse()
-        ..rsuperellipse()
-        ..rsuperellipse(color: colorScheme.primary),
-    );
+    expect(startRadiusOf(tester, Mode.rule), 0);
 
     await gesture.up();
     await tester.pumpAndSettle();
