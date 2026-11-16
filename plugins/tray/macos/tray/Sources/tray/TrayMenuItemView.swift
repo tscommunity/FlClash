@@ -18,7 +18,6 @@ final class TrayMenuItemView: NSView {
         let titleX: CGFloat
         let trailing: CGFloat
         let highlightInset: CGFloat
-        let highlightRadius: CGFloat
         let font: NSFont
 
         static let current: Metrics = {
@@ -29,7 +28,6 @@ final class TrayMenuItemView: NSView {
                     titleX: 30,
                     trailing: 23,
                     highlightInset: 5,
-                    highlightRadius: 8,
                     font: .menuFont(ofSize: 13)
                 )
             }
@@ -39,7 +37,6 @@ final class TrayMenuItemView: NSView {
                 titleX: 21,
                 trailing: 14,
                 highlightInset: 5,
-                highlightRadius: 4,
                 font: .menuFont(ofSize: 0)
             )
         }()
@@ -95,11 +92,7 @@ final class TrayMenuItemView: NSView {
         let highlighted = isHighlighted
         if highlighted {
             NSColor.controlAccentColor.setFill()
-            NSBezierPath(
-                roundedRect: bounds.insetBy(dx: metrics.highlightInset, dy: 0),
-                xRadius: metrics.highlightRadius,
-                yRadius: metrics.highlightRadius
-            ).fill()
+            NSBezierPath(rect: bounds.insetBy(dx: metrics.highlightInset, dy: 0)).fill()
         }
 
         let primary: NSColor = highlighted

@@ -117,14 +117,14 @@ class AboutView extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     foregroundDecoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      shape: BoxShape.rectangle,
                       image: DecorationImage(
                         image: AssetImage(contributor.avatar),
                         fit: BoxFit.cover,
                       ),
                     ),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      shape: BoxShape.rectangle,
                       color: context.colorScheme.primaryContainer,
                     ),
                   ),

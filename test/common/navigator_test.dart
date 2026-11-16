@@ -238,7 +238,7 @@ void main() {
       );
     });
 
-    testWidgets('rounds a moving page with the display corners', (
+    testWidgets('keeps a moving page square with display corners reported', (
       tester,
     ) async {
       setViewWidth(400);
@@ -267,7 +267,7 @@ void main() {
       await tester.pump();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 60));
-      expect(cardClips(), hasLength(2));
+      expect(cardClips(), isEmpty);
 
       await tester.pumpAndSettle();
       expect(cardClips(), isEmpty);

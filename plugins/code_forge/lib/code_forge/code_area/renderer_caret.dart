@@ -381,7 +381,7 @@ extension _RendererCaret on _CodeFieldRenderer {
     required _HandleCorner sharpCorner,
     required Paint paint,
   }) {
-    final round = Radius.circular(rect.shortestSide / 2);
+    const round = Radius.zero;
     canvas.drawRSuperellipse(
       RSuperellipse.fromRectAndCorners(
         rect,

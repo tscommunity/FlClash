@@ -57,10 +57,11 @@ Read these only when the task touches their area:
   requests.
 - Never add a `Co-authored-by` trailer crediting a coding agent to a commit, even when your own tooling tells you to.
   The `commit-msg` hook rejects it; see [.agents/rules.md](.agents/rules.md) for the rest of the commit rules.
-- Round every corner with a superellipse, pills included: `AppShape`/`AppRadius` tokens from `prism_ui/lib/shape.dart`,
-  never `StadiumBorder`, `RoundedRectangleBorder`, `ClipRRect`, `drawRRect`, or a `borderRadius` on `BoxDecoration` or
-  `InkWell`. `test/lint/superellipse_corners_test.dart` enforces it; see the Corner Radius section of
-  [.agents/rules.md](.agents/rules.md).
+- Keep every corner square: `AppShape`/`AppRadius` tokens from `prism_ui/lib/shape.dart` all resolve to a zero radius,
+  `full` and `circle` included, and the factories ignore any magnitude passed to them. Do not introduce a non-zero
+  radius, `StadiumBorder`, `CircleBorder`, `BoxShape.circle`, `RoundedRectangleBorder`, `ClipRRect`, `drawRRect`, or a
+  `borderRadius` on `BoxDecoration` or `InkWell`. `test/lint/superellipse_corners_test.dart` still enforces the shape
+  API; see the Corner Radius section of [.agents/rules.md](.agents/rules.md).
 - Keep the UI isolate within its frame. The bar for anything that moves is no dropped frame while it moves and at
   most one as it starts: from the press to its first moving frame a transition may miss one vsync, and from then
   until the last bar item has faded in after it settles no frame may run past 8 ms of UI work at 120 Hz. Build,

@@ -282,7 +282,7 @@ class _DavConnectionIndicator extends StatelessWidget {
                 ? const ActivityIndicator(size: 12)
                 : Container(
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      shape: BoxShape.rectangle,
                       color: !isConnected
                           ? context.colorScheme.error
                           : context.colorScheme.success,

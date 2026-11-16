@@ -708,10 +708,7 @@ class ScannerOverlay extends CustomPainter {
       ..fillType = PathFillType.evenOdd
       ..addRect(Offset.zero & size)
       ..addRSuperellipse(
-        RSuperellipse.fromRectAndRadius(
-          scanWindow,
-          Radius.circular(borderRadius),
-        ),
+        RSuperellipse.fromRectAndRadius(scanWindow, Radius.zero),
       );
     canvas.drawPath(backgroundWithCutout, Paint()..color = color);
   }
@@ -747,10 +744,7 @@ class _ScanEffectPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = animation.value;
-    final window = RSuperellipse.fromRectAndRadius(
-      scanWindow,
-      Radius.circular(borderRadius),
-    );
+    final window = RSuperellipse.fromRectAndRadius(scanWindow, Radius.zero);
     _paintBorder(canvas, window, t);
     canvas.save();
     canvas.clipRSuperellipse(window);

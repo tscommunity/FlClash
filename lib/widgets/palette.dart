@@ -608,15 +608,20 @@ void _paintColorThumb(
   double radius,
   Color color,
 ) {
-  canvas.drawCircle(
-    center.translate(0, 1),
-    radius,
+  canvas.drawRect(
+    Rect.fromCircle(center: center.translate(0, 1), radius: radius),
     Paint()
       ..color = Colors.black.withValues(alpha: 0.28)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.5),
   );
-  canvas.drawCircle(center, radius, Paint()..color = Colors.white);
-  canvas.drawCircle(center, radius - _thumbRingWidth, Paint()..color = color);
+  canvas.drawRect(
+    Rect.fromCircle(center: center, radius: radius),
+    Paint()..color = Colors.white,
+  );
+  canvas.drawRect(
+    Rect.fromCircle(center: center, radius: radius - _thumbRingWidth),
+    Paint()..color = color,
+  );
 }
 
 /// The six hex digits of an sRGB color, kept in step with [color] while

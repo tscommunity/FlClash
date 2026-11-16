@@ -161,7 +161,7 @@ from the edges and 8 dp from the next, as the profile cards sit. Every card take
 error tints on a label still stand out, where a fill on every other row competed with them; rows on the page split by
 a full-width divider were the one structural line left on screens otherwise drawn with fills. Laid out as a table,
 where a row is one line read across many columns, they drop the gap and give every other row the raised fill, inset
-and rounded like the column header, so the eye keeps its row; the dashboard's table does the same.
+and square like the column header, so the eye keeps its row; the dashboard's table does the same.
 
 Every divider takes its color from `Divider.colorOf`: `onSurface` at 14%, never `outlineVariant`. A
 translucent line keeps the same contrast on the page, a card, or the chrome, in both modes; `outlineVariant` stood out

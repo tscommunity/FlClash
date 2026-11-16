@@ -37,7 +37,7 @@ int _lineOf(String source, int offset) =>
     '\n'.allMatches(source.substring(0, offset)).length + 1;
 
 void main() {
-  test('lib rounds corners with superellipses, not circular arcs', () {
+  test('lib keeps corners square and never draws circular arcs', () {
     final offenders = <String>[];
 
     for (final entity in sourceEntities()) {
@@ -54,7 +54,7 @@ void main() {
         }
         offenders.add(
           '${entity.path}:${_lineOf(source, match.start)} — ${match[0]} '
-          'draws circular corners; use the superellipse API or AppShape.',
+          'draws circular corners; use AppShape, whose tokens are square.',
         );
       }
       for (final match in _radiusCall.allMatches(source)) {

@@ -120,7 +120,7 @@ extension _RendererHighlights on _CodeFieldRenderer {
         box.right - box.left + 3,
         _lineHeight + 2.5,
       ),
-      const Radius.circular(2),
+      Radius.zero,
     );
 
     _bracketHighlightPainter.color = textColor;

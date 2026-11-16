@@ -13,14 +13,14 @@ dialogs, and interaction behavior.
 ## Conventions
 
 - Reuse the patterns of nearby widgets, providers, notifiers, and helpers before adding an abstraction, and keep to the
-  look the rest of the app has: its own seeded color system, with Apple's interaction conventions (continuous corners,
+  look the rest of the app has: its own seeded color system, with Apple's interaction conventions (square corners,
   sheets that snap between detents, a floating tab bar), all drawn by `prism_ui`. `Card`, `PressSurface`, and `ListRow`
   press with `PressLook.ink`, a state layer plus, on Android, a sparkle drawn by `PressSparkles`, and a desktop hover is
   faint (Press in `.agents/surfaces.md`). Do not introduce a visual system for one screen or rewrite a layout the
   request does not need.
 - Widgets come from `package:flutter/widgets.dart` and components from `prism_ui`; no design library is imported. The
   Generated Code section of `.agents/rules.md` has the rule.
-- `.agents/rules.md` is binding here: the lint set (`child:` last, `const`, final locals), the superellipse corner API,
+- `.agents/rules.md` is binding here: the lint set (`child:` last, `const`, final locals), the square-corner API,
   and the widget-test facts under Testing Rules (`pumpAndSettle` never returns on `EditorView`, `dispose()` must not
   await, auto-dispose providers need a container-level hold, platform decisions are passed in as parameters).
 - A component that knows nothing of FlClash goes in the `prism_ui` package, the submodule `plugins/prism_ui`; what FlClash adds to it without reading app
@@ -78,55 +78,24 @@ dialogs, and interaction behavior.
 
 ## Corner Radii
 
-All corner radii come from `prism_ui/lib/shape.dart`: a token, a derived value, or a named off-scale value passed to its
-builders. Never write a bare radius literal at a call site.
+Every corner is square. `AppCorner`, `AppRadius`, and `AppShape` in `prism_ui/lib/shape.dart` resolve to a zero radius,
+`full` and `circle` included, and their builders ignore any magnitude passed to them. Do not add a non-zero radius at a
+call site, a `StadiumBorder`, a `CircleBorder`, or `BoxShape.circle`.
 
-The scale is picked by the component's **shortest side**. A radius that reads as a soft card at 64 dp tall
-reads as a pill at 24 and as a square at 400, so one radius everywhere is the wrong kind of consistency.
-
-| Token | Value | Shortest side | Use |
-| --- | --- | --- | --- |
-| `none` | 0 | - | square edges, and the flat side of a grouped run |
-| `xs` | 4 | inset blocks | tiles clipped inside an already rounded surface |
-| `sm` | 8 | up to 48 | chips, thumbs, swatches, small square tiles |
-| `md` | 16 | up to 64 | interactive chrome: inputs, menus, buttons, popups |
-| `lg` | 20 | 64 to 180 | mid-size cards: dashboard tiles, proxy node cards |
-| `xl` | 24 | full-bleed | anything spanning the whole width: list rows, grouped runs, group headers |
-| `xxl` | 28 | over 200 | sheets, full-screen containers |
-| `alert` | 34 | - | alerts, the corner of iOS 27's UIAlertController; on `AppCorner` only, passed to the builders |
-| `full` | 1000 | - | pills and circles: buttons, tracks, indicators, progress, avatars |
-
-- `AppCorner` holds the scale as `double`; `AppRadius` mirrors it as `BorderRadius` with `all`, `top`, and `vertical`
-  builders; `AppShape` mirrors it as `RoundedSuperellipseBorder`, `full` included, plus `circle`, `input`, and the
-  `all`/`top`/`vertical`/`of` builders. Use `AppShape.full` for pills, never `StadiumBorder`; the Corner Radius
-  section of `.agents/rules.md` explains why and lists the superellipse API per layer.
-- `AppCorner.fit(shortestSide)` snaps to the largest token at or under one third of the shortest side. Use it whenever
-  the size comes from a `LayoutBuilder` or scales with text.
-- The components of `prism_ui` already take their shapes from the scale. Do not restate them at call sites, and leave
-  a field's `border` unset so it keeps `AppShape.input`.
+- Use an `AppShape` token for a shape, `AppRadius.none` where a `BorderRadius` is required. The old tokens (`xs` to
+  `xxl`, `alert`, `full`) remain as names so call sites keep their intent, but every one is square.
+- `AppCorner.fit(shortestSide)` and the `AppRadius`/`AppShape` builders stay in the API for compatibility; they always
+  return a square result. Do not reintroduce a size-dependent radius behind them.
+- The components of `prism_ui` already take their shapes from these tokens. Leave a field's `border` unset so it keeps
+  `AppShape.input`, which now outlines a rectangle.
 - Colors of surfaces follow `.agents/surfaces.md`: fills by `SurfaceLevel`, no structural borders, and a selected
   item keeping its fill under a `SelectionCheck` or `SelectionBadge`, with no container role on a card or row.
 
-`xl` and `lg` exist because one token cannot serve both size classes. A full-bleed surface is wide and short, so its
-corner must be larger than its height alone suggests or it stops reading as a card; everything full-bleed shares `xl`
-(the profiles card, the outer corners of a grouped run in `DecorationListItem`, the proxy
-group card in `lib/views/proxies/list.dart`) and does not use `fit()`. This is the one deliberate overshoot of the
-one-third rule; the value stays under half a standard row so nothing clamps and every full-bleed surface renders the
-same radius. `lg` is for mid-size cards that are not full-bleed: a proxy node card in the tab view at
-`ProxyCardType.compact` is only about 64 tall, which caps its radius at 21, so `xl` would break on a setting the user
-can change at any time while `lg` clears both heights and the smallest dashboard tile.
+Outlined inputs use `AppInputBorder`, which paints a rectangular border through the floating label's notch.
 
-Outlined inputs use `AppInputBorder`, which paints the full superellipse through the floating label's notch.
-
-Nested radii are derived, never tokens: concentric corners need `outer = inner + inset`, so name the inset and compute
-the outer value, as `_cardRadius` in `prism_ui/lib/popup.dart` does. Adding a token for one of these is how a scale grows without
-bound. A card that also stands on its own elsewhere keeps its token when nested: the proxy node cards inside a proxies
-list group stay `lg` like those in the tab view, since deriving them from the group card's `xl` left them at 14, smaller
-than every other card in the app.
-
-A component the scale does not fit keeps its own value instead of growing the scale: name it once in the file and pass
-it to the `all`/`top`/`vertical` builders, as `_itemShape` in `prism_ui/lib/sidebar.dart` does with 10, between the
-chip-sized `sm` and the near-pill `md` on a 40 tall row. Reach for this only once the table and `fit()` are ruled out.
+On Windows the native window corner is disabled at startup in `lib/manager/window_manager.dart` and stays disabled
+across maximize and unmaximize. The glass shader takes its corner curves from the same zero radii, so glass panes,
+menus, and dock surfaces are square too.
 
 ## Verification
 

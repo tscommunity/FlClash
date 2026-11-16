@@ -571,7 +571,7 @@ every icon the app shows. Nothing in `lib/` uses the Material icon font, and
 `test/lint/material_icons_test.dart` fails on any `Icons.*` or `AnimatedIcons.*`, so every icon shares one stroke and
 can animate its shape.
 A `Glyph` is a list of shapes on a 24-unit grid, stroked at `Glyph.strokeWidth` with round caps and joins and
-superellipse corners; a curve the primitive shapes cannot draw is a `GlyphPath`, SVG path data traced along the
+square corners; a curve the primitive shapes cannot draw is a `GlyphPath`, SVG path data traced along the
 stroke's center. Each shape has a role that decides its filled form, the way SF Symbols and Fluent pair an
 outlined icon with its filled variant:
 
@@ -610,7 +610,7 @@ back and close buttons are the scaffold's own, with `Glyphs.backFor` picking the
 Empty states draw no image assets either. `NullStatus` in `prism_ui/lib/null_status.dart` shows the glyph of
 its `Illustration` (for the app's pages, a `NullStatusIllustration` in `lib/ui/null_status_illustration.dart`) filled
 on a shape and among accent marks, each picked at random when it mounts: a circle, a scallop (`cookie9Sided`,
-`cookie12Sided`) or a rounded square, as a freer shape cuts in too close to the glyph, and one of
+`cookie12Sided`) or a square, as a freer shape cuts in too close to the glyph, and one of
 eight arrangements of marks. It enters with one of three choreographies, also picked at random: the shape spins in,
 morphs out of a circle, or springs in while the accents orbit into place. It takes one color, `primary` or `error`:
 the shape is that color at 15%, the glyph and strong marks the color itself.
@@ -763,9 +763,9 @@ over it, as iOS's does, and lets go 0.2 s after the change, as LiquidGlassKit's 
 - Glass builds no pipelines ahead of use. A warm-up that rendered panes offscreen once the first frame landed was
   dropped: after an install, with no pipeline cache on disk, it compiled on the raster thread just as the app was first
   used, to spare the first menu and lens only a few pipelines.
-- A pane is a rounded rectangle, each corner with its own radius, unless a `clipper` gives it a path, as the start
-  button's cookie does. The shader reads that path as its reach from the pane's center in 64 directions, so it must
-  meet every ray from the center once.
+- A pane is a square-cornered rectangle unless a `clipper` gives it a path, as the start button's cookie does. The
+  shader reads that path as its reach from the pane's center in 64 directions, so it must meet every ray from the
+  center once.
 - Without Impeller's shader filters (Skia on the Intel macOS build, `flutter test`) a pane frosts from its capture:
   blur, saturation, brightness, tint, and a rim, with no refraction; the tint is not thickened there, as it is where a
   pane has no capture, since the capture holds the blur. `flutter test --enable-impeller` runs the shader, so `toImage`
@@ -847,9 +847,8 @@ over it, as iOS's does, and lets go 0.2 s after the change, as LiquidGlassKit's 
   darkens toward the sides with the cube of the normal's sideways part, from nothing along a dark button's top and
   bottom, and the highlight fades over 1.2 dp with a sixth of it in a tail to 4.5 dp, dims round the ends far faster
   than the tab bar's, and is partly added as light, so it lifts a pale button as iOS does.
-  The line and the highlight keep to the superellipse the pane is clipped to, which the shader traces after the
-  engine's `round_superellipse_param.cc`: the circles the optics bend by lie up to half a dp outside it where a long
-  side runs into its end, and a line on them breaks there. A test holds the traced curve to the engine's path.
+  The line and the highlight keep to the outline the pane is clipped to, which the shader traces after the engine's
+  `round_superellipse_param.cc` with a zero radius: a test holds the traced curve to the engine's path.
   In dark mode the tint is
   the scheme's `surfaceContainerHighest` at iOS's alpha: iOS's mid grey lifts a dark page into a grey haze. The tint
   thickens over content much darker than it, or with a negative `contrast` much lighter.
@@ -903,8 +902,8 @@ swells a round platter, the size the return ends at, from the control's center i
 the card's width to its own and its center dips away from the control, further the further the card's center lies.
 The control's glass sinks a quarter of the way in as a droplet a quarter its size, flowing into the platter as goo,
 and its glyph fades out under the platter's frost within the first quarter of the spring; iOS traces a copy of the
-glyph grown with the platter too, but none shows. The corners stay a capsule until a second spring (`_corners`), 70 ms
-later, squares them off with a small undershoot. The content fades in with the spring, blurred by 4 dp of what is
+glyph grown with the platter too, but none shows. The corners stay square; the second spring (`_corners`), 70 ms
+later, settles the platter with a small undershoot. The content fades in with the spring, blurred by 4 dp of what is
 left of it and by a bump iOS lays over the whole menu, 1.9 dp at about 70 ms. The opening ends at 450 ms, with every
 spring within a dp of rest, rather than once they settle: a card taking over sooner would ride the last undershoot
 back up to full size, and its held capture renews whenever its frost grows, so on every frame of that.
@@ -1142,9 +1141,8 @@ by the simulator's touch injection, logging the presented view's presentation la
   the blank higher than its content needs, and the tallest detent slows into the peek over as much keyboard again as
   it takes to get there, up to `_peakEase`.
 - Below its tallest detent a sheet floats as a card, as iOS 27's medium sheet does: it shrinks about its top to leave
-  `sheetFloatInset` (8 dp) at each side and at its foot and its foot rounds to 38, in step with how far it is from the
-  tallest detent (`_SheetModel.float`); the keyboard lifts it to the full width. Its top corners stay 38 at every
-  detent, as iOS 27's measure in pixels, or the display's own where those are tighter. Content that fills the sheet
+  `sheetFloatInset` (8 dp) at each side and at its foot; the keyboard lifts it to the full width. Every corner stays
+  square at every detent. Content that fills the sheet
   lays out taller (`slackFor`) so that, shrunk, it still reaches the card's foot. Flutter measures a whole gesture at
   the scale the sheet had when the finger came down, so the model converts drags at that scale (`fingerDown`) and
   hands the content what is left in its pixels now. A bar item lifted out of a floating sheet lays out at its slot's
@@ -1848,8 +1846,8 @@ folding, caret, gutter and pointer code sit in `lib/code_forge/code_area/` part 
 is the channel contract (methods, arguments, events, effects, runner hooks) and every platform implements exactly that
 table. `lib/common/window.dart` and `lib/manager/window_manager.dart` are the only application callers.
 
-- Each platform keeps one style record (title bar style and button visibility everywhere, rounded corners on
-  Windows, effect, tint and brightness on Windows and macOS) and reapplies it whole from a single `apply` routine, so DWM margins
+- Each platform keeps one style record (title bar style and button visibility everywhere, square corners on Windows,
+  effect, tint and brightness on Windows and macOS) and reapplies it whole from a single `apply` routine, so DWM margins
   on Windows and `isOpaque`/effect views on macOS have one writer. Add a visual setting to that record, never a second
   code path.
 - Method dispatch is a table on every platform, and every handler validates its arguments; a bad call answers with a

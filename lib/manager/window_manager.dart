@@ -58,6 +58,9 @@ class _WindowContainerState extends ConsumerState<WindowManager>
         unawaited(_applyWindowBlur(next));
       }
     }, fireImmediately: true);
+    if (system.isWindows) {
+      unawaited(desktopWindow.setRoundedCorners(false));
+    }
     desktopWindow.addListener(this);
     _terminateSubscription = widget.terminateSignals?.listen(
       (_) => unawaited(onWindowShouldTerminate()),
@@ -164,7 +167,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   void onWindowUnmaximize() {
     super.onWindowUnmaximize();
     if (system.isWindows) {
-      unawaited(desktopWindow.setRoundedCorners(true));
+      unawaited(desktopWindow.setRoundedCorners(false));
     }
     _scheduleWindowGeometryCapture();
   }

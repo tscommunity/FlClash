@@ -28,27 +28,18 @@ raw string.
 
 ### Corner Radius
 
-Rounded corners are superellipses (continuous corners) everywhere, never circular arcs; when a component offers
-both, pick the superellipse. `test/lint/superellipse_corners_test.dart` fails on the circular APIs below in `lib/`. Use
-the superellipse API at each layer:
+Every corner is square. `AppCorner`, `AppRadius`, and `AppShape` in `prism_ui/lib/shape.dart` all resolve to a zero
+radius, `full` and `circle` included, and their factories ignore any magnitude passed to them. Do not introduce a
+non-zero radius, `StadiumBorder`, `CircleBorder`, `BoxShape.circle`, or a `borderRadius` on `BoxDecoration` or
+`InkWell`. `test/lint/superellipse_corners_test.dart` still fails on circular APIs in `lib/`.
 
-- Shapes: `RoundedSuperellipseBorder` instead of `RoundedRectangleBorder`.
+Use the shape API at each layer so lerps, focus rings, and shadows stay consistent:
+
+- Shapes: an `AppShape` token, a `RoundedSuperellipseBorder` at zero radius, instead of a bespoke border.
 - Clips: `ClipRSuperellipse` instead of `ClipRRect`.
-- Container decorations: `ShapeDecoration(shape: RoundedSuperellipseBorder(...))` instead of
-  `BoxDecoration(borderRadius: ...)`; borders move to the shape's `side`, and a `Container` with
-  `clipBehavior` still clips to the shape path.
-- Canvas: `canvas.drawRSuperellipse(RSuperellipse.fromRectAndRadius(...))` instead of `drawRRect`.
-
-Passing `BorderRadius.circular(x)` as the `borderRadius` argument of these APIs is expected — it only
-carries the corner magnitude; the rendered geometry stays a superellipse.
-
-Pills are no exception. `StadiumBorder` joins its round caps to the straight sides with a curvature jump, while
-`AppShape.full`, a superellipse at full radius, blends them, and on a square it renders the exact circle, so it serves
-circles too. The buttons of `prism_ui/lib/common_button.dart` default to `AppShape.full`, and `ButtonTheme.merge`
-keeps what the ambient theme sets. `CircleBorder` and `BoxShape.circle` are fine for something that is always square.
-
-APIs that accept only a `Radius` keep circular corners; supply the superellipse with an enclosing clip or shape where it
-shows.
+- Container decorations: `ShapeDecoration(shape: AppShape.md)` instead of `BoxDecoration(borderRadius: ...)`; borders
+  move to the shape's `side`, and a `Container` with `clipBehavior` still clips to the shape path.
+- Canvas: `canvas.drawRSuperellipse(RSuperellipse.fromRectAndRadius(rect, Radius.zero))` instead of `drawRRect`.
 
 ### Typography
 
