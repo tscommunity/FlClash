@@ -5,4 +5,4 @@
 [submodule "plugins/prism_ui"]
 	path = plugins/prism_ui
 	url = https://github.com/tscommunity/prism_ui.git
-	branch = flclash-square-corners
+	branch = v0.9.4-square
